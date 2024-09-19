@@ -1,0 +1,79 @@
+package com.example.new3
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.new3.ui.theme.New3Theme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            New3Theme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    mainScreen()
+                }
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun mainScreen() {
+    var text by remember { mutableStateOf("this text to change") }  // Исправленный делегат для работы с состоянием
+    var mapItems by remember { mutableStateOf(mapOf("purpose" to "цель", "exception" to "исключение", "occupy" to "занимать")) }
+    //val mapOrigin = mapOf("purpose" to "цель", "exception" to "исключение","occupy" to "неправильное")
+    val map1 = mapOf("key1" to "value1", "key2" to "value2")
+    val map2 = mapOf("key1" to "value1", "key2" to "differentValue")
+
+    val changeText = { value: String -> text = value }
+    val removeItem = { key: String ->
+        mapItems = mapItems.filterKeys { it != key }
+    }
+
+    Column() {
+        Text(text)
+        button(changeText = changeText)
+
+        for ((key, value) in mapItems) {
+            Button(onClick = {removeItem(key) }) {
+                Text("$key - $value")
+            }
+        }
+
+        val keyToCompare = "key1"
+        if (map1["key1"] == map2["key1"]) {
+            Text("Значения по ключу '$keyToCompare' одинаковы")
+        } else {
+            Text("Значения по ключу '$keyToCompare' разные")
+        }
+
+
+    }
+}
+
+@Composable
+fun button(changeText: (String) -> Unit) {
+    Button(onClick = { changeText("Another text") }) {
+        Text("Push")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    New3Theme {
+        mainScreen()
+    }
+}

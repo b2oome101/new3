@@ -1,0 +1,236 @@
+package com.example.new3
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.new3.ui.theme.New3Theme
+import kotlin.random.Random
+import android.media.MediaPlayer
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Alignment
+
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            New3Theme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    mainScreen()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun mainScreen() {
+    // Класс для хранения пар слов и переводов
+    data class WordPair(val word: String, val translation: String)
+
+    // Исходная карта
+    val wordMap = mapOf(
+        "Although" to "Хотя",
+        "provide" to "предоставлять",
+        "flexibility" to "гибкость",
+        "inevitably" to "неизбежно",
+        "straightforward" to "простой",
+        "make" to "сделать",
+        "go" to "идти",
+        "know" to "знать",
+        "take" to "брать",
+        "see" to "видеть",
+        "come" to "приходить",
+        "think" to "думать",
+        "look" to "смотреть",
+        "want" to "хотеть",
+        "give" to "давать",
+        "use" to "использовать",
+        "find" to "находить",
+        "tell" to "рассказать",
+        "ask" to "спрашивать",
+        "work" to "работать",
+        "seem" to "казаться",
+        "feel" to "чувствовать",
+        "try" to "попробовать",
+        "leave" to "уходить",
+        "call" to "звонить",
+        "good" to "хорошо",
+        "help" to "помогать",
+        "talk" to "говорить",
+        "turn" to "поворачивать",
+        "start" to "начинать",
+        "show" to "показывать",
+        "hear" to "слышать",
+        "play" to "играть",
+        "run" to "бежать"
+    )
+
+    var textContent by remember { mutableStateOf("") }
+    var score by remember { mutableStateOf(0) }
+    var successTry by remember { mutableStateOf(0) }
+    var failier by remember { mutableStateOf(0) }
+    var CountQuestion by remember { mutableStateOf(0) }
+
+    // Переменная для хранения случайного элемента
+    var randomEntry by remember { mutableStateOf(wordMap.entries.random()) }
+
+    // Инициализация MediaPlayer
+    val context = LocalContext.current
+    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.click_sound) }
+
+    // Функция для перемешивания значений с сохранением 50% на месте
+    fun shuffleHalfMapValues(map: Map<String, String>): Map<String, String> {
+        val entries = map.entries.toList()
+        val totalEntries = entries.size
+        val retainCount = totalEntries / 2 // Оставляем 50% значений на месте
+
+        // Перемешиваем записи
+        val shuffledEntries = entries.shuffled(Random.Default)
+
+        // Выбираем те записи, которые останутся неизменными
+        val retainedEntries = shuffledEntries.take(retainCount)
+        // Оставшиеся записи для перемешивания
+        val toShuffleEntries = shuffledEntries.drop(retainCount)
+
+        // Перемешиваем значения в оставшихся записях
+        val shuffledValues = toShuffleEntries.map { it.value }.shuffled(Random.Default)
+
+        // Создаём новую Map
+        val newMap = mutableMapOf<String, String>()
+
+        // Добавляем неизмененные записи
+        retainedEntries.forEach { newMap[it.key] = it.value }
+
+        // Добавляем перемешанные записи
+        toShuffleEntries.zip(shuffledValues).forEach { (entry, shuffledValue) ->
+            newMap[entry.key] = shuffledValue
+        }
+
+        return newMap
+    }
+
+    // Применяем функцию к исходной Map
+    var shuffledMap = shuffleHalfMapValues(wordMap)
+
+    // Функция для обновления случайного элемента
+    fun pickRandomEntry() {
+        randomEntry = shuffledMap.entries.random()
+        CountQuestion += 1
+    }
+
+    // Функция для сравнения элемента
+    fun checkIfCorrect() {
+        val originalValue = wordMap[randomEntry.key]
+        if (originalValue == randomEntry.value) {
+            textContent = "Угадал"
+            score += 1
+            successTry += 1
+        } else {
+            textContent = "Не угадал"
+            score -= 1
+            failier += 1
+        }
+    }
+
+    fun checkifNotCorrect() {
+        val originalValue = wordMap[randomEntry.key]
+        if (originalValue != randomEntry.value) {
+            textContent = "Угадал"
+            score += 1
+            successTry += 1
+        } else {
+            textContent = "Не угадал"
+            score -= 1
+            failier += 1
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Правильных ответов: $successTry", modifier = Modifier.padding(top = 16.dp), fontSize = 20.sp)
+        Text("Неправильных ответов: $failier", modifier = Modifier.padding(top = 16.dp), fontSize = 20.sp)
+        Text("Всего вопросов: $CountQuestion", fontSize = 15.sp)
+
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Баллы: $score", fontSize = 15.sp)
+
+            if (CountQuestion <= 9) {
+                Text(text = "${randomEntry.key} -> ${randomEntry.value}", fontSize = 30.sp, modifier = Modifier.padding(top = 16.dp))
+
+                Row(Modifier.padding(20.dp)) {
+                    Button(
+                        onClick = {
+                            mediaPlayer.start() // Воспроизведение звука
+                            checkIfCorrect()
+                            pickRandomEntry()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                    ) {
+                        Text(text = "Правильно", fontSize = 20.sp)
+                    }
+
+                    Button(
+                        onClick = {
+                            mediaPlayer.start() // Воспроизведение звука
+                            checkifNotCorrect()
+                            pickRandomEntry()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text(text = "Нет", fontSize = 20.sp)
+                    }
+                }
+
+                Text(text = textContent, modifier = Modifier.padding(top = 16.dp))
+            } else {
+                Button(onClick = {
+                    mediaPlayer.start() // Воспроизведение звука
+                    CountQuestion = 0
+                    score = 0
+                    successTry = 0
+                    failier = 0
+
+                }) {
+                    Text("Следующий раунд")
+                }
+            }
+        }
+    }
+
+    // Освобождение ресурсов MediaPlayer
+    DisposableEffect(Unit) {
+        onDispose {
+            mediaPlayer.release()
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    New3Theme {
+        mainScreen()
+    }
+}

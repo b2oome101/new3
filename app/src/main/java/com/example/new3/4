@@ -1,0 +1,216 @@
+package com.example.new3
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.new3.ui.theme.New3Theme
+import kotlin.random.Random
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            New3Theme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    mainScreen()
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun mainScreen() {
+    // Исходная карта
+    val originalMap = mapOf(
+        "be" to "быть",
+        "have" to "иметь",
+        "do" to "делать",
+        "say" to "сказать",
+        "get" to "получить",
+        "make" to "сделать",
+        "go" to "идти",
+        "know" to "знать",
+        "take" to "брать",
+        "see" to "видеть",
+        "come" to "приходить",
+        "think" to "думать",
+        "look" to "смотреть",
+        "want" to "хотеть",
+        "give" to "давать",
+        "use" to "использовать",
+        "find" to "находить",
+        "tell" to "рассказать",
+        "ask" to "спрашивать",
+        "work" to "работать",
+        "seem" to "казаться",
+        "feel" to "чувствовать",
+        "try" to "попробовать",
+        "leave" to "уходить",
+        "call" to "звонить",
+        "good" to "хорошо",
+        "help" to "помогать",
+        "talk" to "говорить",
+        "turn" to "поворачивать",
+        "start" to "начинать",
+        "show" to "показывать",
+        "hear" to "слышать",
+        "play" to "играть",
+        "run" to "бежать",
+        "move" to "двигаться",
+        "live" to "жить",
+        "believe" to "верить",
+        "hold" to "держать",
+        "bring" to "приносить",
+        "write" to "писать",
+        "sit" to "сидеть",
+        "stand" to "стоять",
+        "lose" to "терять",
+        "pay" to "платить",
+        "meet" to "встречать",
+        "include" to "включать",
+        "continue" to "продолжать",
+        "set" to "устанавливать",
+        "learn" to "учить",
+        "change" to "менять",
+        "lead" to "вести",
+        "understand" to "понимать",
+        "watch" to "смотреть",
+        "follow" to "следовать",
+        "stop" to "останавливаться",
+        "create" to "создавать",
+        "read" to "читать",
+        "allow" to "разрешать",
+        "add" to "добавлять",
+        "spend" to "тратить",
+        "grow" to "расти",
+        "open" to "открывать",
+        "close" to "закрывать",
+        "consider" to "рассматривать",
+        "buy" to "покупать",
+        "serve" to "служить",
+        "die" to "умереть",
+        "send" to "отправлять",
+        "build" to "строить",
+        "stay" to "оставаться",
+        "fall" to "падать",
+        "cut" to "резать",
+        "reach" to "достигать",
+        "kill" to "убивать",
+        "remain" to "оставаться",
+        "suggest" to "предлагать",
+        "raise" to "поднимать",
+        "pass" to "передавать",
+        "choose" to "выбирать",
+        "study" to "изучать",
+        "finish" to "заканчивать",
+        "prepare" to "готовить",
+        "search" to "искать",
+        "design" to "проектировать",
+        "perform" to "выступать",
+        "celebrate" to "праздновать",
+        "invest" to "инвестировать"
+    )
+    var textContent by remember { mutableStateOf("") }
+    var score by remember { mutableStateOf(0) }
+
+
+
+    // Переменная для карты с перемешанными значениями
+    var shuffledMap by remember { mutableStateOf(originalMap.toMutableMap()) }
+    // Переменная для хранения случайного элемента
+    var randomEntry by remember { mutableStateOf(shuffledMap.entries.random()) }
+    // Функция для обновления случайного элемента
+    fun pickRandomEntry() {
+        randomEntry = shuffledMap.entries.random()
+        // Функция для перемешивания карты
+        val keys = originalMap.keys.toList()
+        val values = originalMap.values.toList().shuffled(Random)
+        shuffledMap = keys.zip(values).toMap().toMutableMap()
+        textContent=""
+    }
+
+    // Функция для сравнения элемента
+    fun checkIfCorrect() {
+        val originalValue = originalMap[randomEntry.key]
+        if (originalValue == randomEntry.value) {
+            textContent = "Угадал"
+            score = (score+1)
+        } else {
+            textContent = "Не угадал"
+            score = (score-1)
+        }
+    }
+
+    fun checkifNotCorrect(){
+        val originalValue = originalMap[randomEntry.key]
+        if (originalValue !== randomEntry.value) {
+            textContent = "Угадал"
+            score = (score+1)
+        } else {
+            textContent = "Не угадал"
+            score = (score-1)
+        }
+    }
+
+
+    Column(modifier = Modifier.padding(16.dp)
+        .width(200.dp),verticalArrangement = Arrangement.Center,
+
+        ) {
+        Text("Баллы: $score")
+        Text(
+            text = "${randomEntry.key} -> ${randomEntry.value}",
+            modifier = Modifier.padding(top = 16.dp)
+        )
+
+        // Кнопка для обновления случайного элемента
+            //  Button(onClick = { pickRandomEntry() }, modifier = Modifier.padding(top = 16.dp)) {
+          //  Text(text = "Следующее слово")
+      //  }
+
+        Button(onClick = { checkIfCorrect()
+            pickRandomEntry() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Green) ) {
+            Text(text = "Правильно")
+        }
+
+        Button(onClick = { checkifNotCorrect()
+            pickRandomEntry() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red) ) {
+            Text(text = "Не правильно")
+        }
+
+
+        Text(text = textContent, modifier = Modifier.padding(top = 16.dp))
+        }
+    }
+
+
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    New3Theme {
+        mainScreen()
+    }
+}
